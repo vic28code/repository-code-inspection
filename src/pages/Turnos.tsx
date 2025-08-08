@@ -2,12 +2,10 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Clock, 
@@ -16,12 +14,8 @@ import {
   Calendar, 
   Search, 
   Filter, 
-  MoreHorizontal,
   RefreshCw,
-  Users,
-  AlertCircle,
   Eye,
-  Edit,
   CalendarClock
 } from "lucide-react";
 
@@ -109,18 +103,9 @@ const mockTurnos: Turno[] = [
 
 const Turnos = () => {
   const [turnos, setTurnos] = useState<Turno[]>(mockTurnos);
-  const [filtros, setFiltros] = useState({
-    sucursal: "",
-    kiosko: "",
-    categoria: "",
-    estado: "",
-    fechaDesde: "",
-    fechaHasta: "",
-    busqueda: ""
-  });
+  const [busqueda, setBusqueda] = useState("");
   const [turnoSeleccionado, setTurnoSeleccionado] = useState<Turno | null>(null);
   const [modalDetalle, setModalDetalle] = useState(false);
-  const [modalReasignar, setModalReasignar] = useState(false);
   const { toast } = useToast();
 
   // Calcular KPIs
@@ -131,22 +116,15 @@ const Turnos = () => {
     reagendados: turnos.filter(t => t.estado === 'reagendado').length
   };
 
-  // Filtrar turnos
+  // Filtrar turnos por búsqueda
   const turnosFiltrados = turnos.filter(turno => {
-    const cumpleFiltros = (
-      (!filtros.sucursal || turno.sucursal.includes(filtros.sucursal)) &&
-      (!filtros.kiosko || turno.kiosko.includes(filtros.kiosko)) &&
-      (!filtros.categoria || turno.categoria.includes(filtros.categoria)) &&
-      (!filtros.estado || turno.estado === filtros.estado) &&
-      (!filtros.fechaDesde || turno.fechaCreacion >= filtros.fechaDesde) &&
-      (!filtros.fechaHasta || turno.fechaCreacion <= filtros.fechaHasta) &&
-      (!filtros.busqueda || 
-        turno.numero.toLowerCase().includes(filtros.busqueda.toLowerCase()) ||
-        turno.cliente.nombre.toLowerCase().includes(filtros.busqueda.toLowerCase()) ||
-        turno.cliente.documento.includes(filtros.busqueda)
-      )
+    if (!busqueda) return true;
+    const searchLower = busqueda.toLowerCase();
+    return (
+      turno.numero.toLowerCase().includes(searchLower) ||
+      turno.cliente.nombre.toLowerCase().includes(searchLower) ||
+      turno.cliente.documento.includes(busqueda)
     );
-    return cumpleFiltros;
   });
 
   const getEstadoBadge = (estado: string) => {
@@ -168,27 +146,15 @@ const Turnos = () => {
     );
   };
 
-  const cambiarEstadoTurno = (turnoId: string, nuevoEstado: Turno['estado'], observaciones?: string) => {
+  const cambiarEstadoTurno = (turnoId: string, nuevoEstado: Turno['estado']) => {
     setTurnos(prev => prev.map(turno => 
       turno.id === turnoId 
-        ? { ...turno, estado: nuevoEstado, observaciones }
+        ? { ...turno, estado: nuevoEstado }
         : turno
     ));
     toast({
       title: "Estado actualizado",
       description: `El turno ha sido marcado como ${nuevoEstado}.`
-    });
-  };
-
-  const limpiarFiltros = () => {
-    setFiltros({
-      sucursal: "",
-      kiosko: "",
-      categoria: "",
-      estado: "",
-      fechaDesde: "",
-      fechaHasta: "",
-      busqueda: ""
     });
   };
 
@@ -253,98 +219,29 @@ const Turnos = () => {
         </Card>
       </div>
 
-      {/* Filtros */}
+      {/* Buscador */}
       <Card className="bg-admin-surface border-admin-border-light">
         <CardHeader>
           <CardTitle className="text-admin-text-primary flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filtros de Búsqueda
+            <Search className="h-5 w-5" />
+            Buscar Turnos
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            <div className="space-y-2">
-              <Label htmlFor="busqueda">Buscar por N° o Cliente</Label>
+          <div className="flex gap-4">
+            <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-admin-text-muted" />
                 <Input
-                  id="busqueda"
-                  placeholder="A-001, Juan Pérez..."
-                  value={filtros.busqueda}
-                  onChange={(e) => setFiltros(prev => ({ ...prev, busqueda: e.target.value }))}
+                  placeholder="Buscar por número de turno, nombre o documento..."
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
                   className="pl-10"
                 />
               </div>
             </div>
-
-            <div className="space-y-2">
-              <Label>Sucursal</Label>
-              <Select value={filtros.sucursal} onValueChange={(value) => setFiltros(prev => ({ ...prev, sucursal: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todas las sucursales" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Todas</SelectItem>
-                  <SelectItem value="Centro">Sucursal Centro</SelectItem>
-                  <SelectItem value="Norte">Sucursal Norte</SelectItem>
-                  <SelectItem value="Sur">Sucursal Sur</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Categoría</Label>
-              <Select value={filtros.categoria} onValueChange={(value) => setFiltros(prev => ({ ...prev, categoria: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todas las categorías" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Todas</SelectItem>
-                  <SelectItem value="Atención General">Atención General</SelectItem>
-                  <SelectItem value="Consultas">Consultas</SelectItem>
-                  <SelectItem value="Reclamos">Reclamos</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Estado</Label>
-              <Select value={filtros.estado} onValueChange={(value) => setFiltros(prev => ({ ...prev, estado: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos los estados" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
-                  <SelectItem value="espera">En Espera</SelectItem>
-                  <SelectItem value="atendido">Atendido</SelectItem>
-                  <SelectItem value="perdido">Perdido</SelectItem>
-                  <SelectItem value="reagendado">Reagendado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="flex gap-4 items-end">
-            <div className="space-y-2">
-              <Label htmlFor="fechaDesde">Fecha Desde</Label>
-              <Input
-                id="fechaDesde"
-                type="date"
-                value={filtros.fechaDesde}
-                onChange={(e) => setFiltros(prev => ({ ...prev, fechaDesde: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fechaHasta">Fecha Hasta</Label>
-              <Input
-                id="fechaHasta"
-                type="date"
-                value={filtros.fechaHasta}
-                onChange={(e) => setFiltros(prev => ({ ...prev, fechaHasta: e.target.value }))}
-              />
-            </div>
-            <Button variant="outline" onClick={limpiarFiltros}>
-              Limpiar Filtros
+            <Button variant="outline" onClick={() => setBusqueda("")}>
+              Limpiar
             </Button>
           </div>
         </CardContent>
@@ -358,90 +255,92 @@ const Turnos = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>N° Turno</TableHead>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Sucursal</TableHead>
-                <TableHead>Categoría</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Fecha/Hora</TableHead>
-                <TableHead>Tiempo Espera</TableHead>
-                <TableHead>Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {turnosFiltrados.map((turno) => (
-                <TableRow key={turno.id}>
-                  <TableCell className="font-medium">{turno.numero}</TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{turno.cliente.nombre}</p>
-                      <p className="text-sm text-admin-text-muted">{turno.cliente.documento}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>{turno.sucursal}</TableCell>
-                  <TableCell>{turno.categoria}</TableCell>
-                  <TableCell>{getEstadoBadge(turno.estado)}</TableCell>
-                  <TableCell>
-                    <div className="text-sm">
-                      <p>{turno.fechaCreacion}</p>
-                      <p className="text-admin-text-muted">{turno.horaCreacion}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className={`font-medium ${turno.tiempoEspera > 30 ? 'text-red-600' : 'text-admin-text-primary'}`}>
-                      {turno.tiempoEspera} min
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          setTurnoSeleccionado(turno);
-                          setModalDetalle(true);
-                        }}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      
-                      {turno.estado === 'espera' && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => cambiarEstadoTurno(turno.id, 'atendido')}
-                          >
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => cambiarEstadoTurno(turno.id, 'perdido', 'Marcado como perdido')}
-                          >
-                            <XCircle className="h-4 w-4 text-red-600" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setTurnoSeleccionado(turno);
-                              setModalReasignar(true);
-                            }}
-                          >
-                            <CalendarClock className="h-4 w-4 text-blue-600" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>N° Turno</TableHead>
+                  <TableHead>Cliente</TableHead>
+                  <TableHead>Sucursal</TableHead>
+                  <TableHead>Categoría</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Fecha/Hora</TableHead>
+                  <TableHead>Tiempo Espera</TableHead>
+                  <TableHead>Acciones</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {turnosFiltrados.map((turno) => (
+                  <TableRow key={turno.id}>
+                    <TableCell className="font-medium">{turno.numero}</TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{turno.cliente.nombre}</p>
+                        <p className="text-sm text-admin-text-muted">{turno.cliente.documento}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>{turno.sucursal}</TableCell>
+                    <TableCell>{turno.categoria}</TableCell>
+                    <TableCell>{getEstadoBadge(turno.estado)}</TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        <p>{turno.fechaCreacion}</p>
+                        <p className="text-admin-text-muted">{turno.horaCreacion}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className={`font-medium ${turno.tiempoEspera > 30 ? 'text-red-600' : 'text-admin-text-primary'}`}>
+                        {turno.tiempoEspera} min
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setTurnoSeleccionado(turno);
+                            setModalDetalle(true);
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        
+                        {turno.estado === 'espera' && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => cambiarEstadoTurno(turno.id, 'atendido')}
+                              title="Marcar como atendido"
+                            >
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => cambiarEstadoTurno(turno.id, 'perdido')}
+                              title="Marcar como perdido"
+                            >
+                              <XCircle className="h-4 w-4 text-red-600" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => cambiarEstadoTurno(turno.id, 'reagendado')}
+                              title="Reagendar"
+                            >
+                              <CalendarClock className="h-4 w-4 text-blue-600" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
@@ -507,51 +406,6 @@ const Turnos = () => {
               )}
             </div>
           )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal de Reasignación */}
-      <Dialog open={modalReasignar} onOpenChange={setModalReasignar}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reagendar Turno</DialogTitle>
-            <DialogDescription>
-              Reagenda el turno {turnoSeleccionado?.numero}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="nuevaFecha">Nueva Fecha</Label>
-                <Input id="nuevaFecha" type="date" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="nuevaHora">Nueva Hora</Label>
-                <Input id="nuevaHora" type="time" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="observacionesReagendar">Motivo del Reagendamiento</Label>
-              <Textarea 
-                id="observacionesReagendar" 
-                placeholder="Describe el motivo del reagendamiento..."
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setModalReasignar(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={() => {
-                if (turnoSeleccionado) {
-                  cambiarEstadoTurno(turnoSeleccionado.id, 'reagendado', 'Reagendado por el administrador');
-                  setModalReasignar(false);
-                }
-              }}>
-                Reagendar
-              </Button>
-            </div>
-          </div>
         </DialogContent>
       </Dialog>
     </div>
