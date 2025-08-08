@@ -32,6 +32,7 @@ import Registro from "./pages/Registro";
 import Configuracion from "./pages/Configuracion";
 import Soporte from "./pages/Soporte";
 import Reportes from "./pages/Reportes";
+import Turnos from "./pages/Turnos";
 
 const queryClient = new QueryClient();
 
@@ -63,15 +64,7 @@ const App = () => (
           <Route path="/pantallas/nueva" element={<AdminLayout><RegistrarPantalla /></AdminLayout>} />
           <Route path="/usuarios" element={<AdminLayout><Usuarios /></AdminLayout>} />
           <Route path="/roles" element={<AdminLayout><Roles /></AdminLayout>} />
-          <Route path="/turnos" element={
-            <AdminLayout>
-              <PlaceholderPage 
-                title="Turnos" 
-                description="Sistema de gestión de turnos"
-                icon={<Clock className="h-5 w-5" />}
-              />
-            </AdminLayout>
-          } />
+          <Route path="/turnos" element={<AdminLayout><Turnos /></AdminLayout>} />
           <Route path="/reportes" element={<AdminLayout><Reportes /></AdminLayout>} />
           <Route path="/soporte" element={<AdminLayout><Soporte /></AdminLayout>} />
           <Route path="/configuracion" element={<AdminLayout><Configuracion /></AdminLayout>} />
