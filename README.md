@@ -4,15 +4,53 @@
 
 **URL**: https://lovable.dev/projects/68cfc65f-f224-4761-beb0-68d84621d5ee
 
-## How can I edit this code?
+# 📋 Sistema Administrativo - Turnero SACODE
 
-There are several ways of editing your application.
+Este repositorio contiene el sistema administrativo para la gestión de turnos y recursos del **Sistema Turnero SACODE**.  
+Permite a los administradores gestionar sucursales, kioskos, pantallas, categorías, usuarios, publicidad, reportes y reglas de atención, así como brindar una experiencia fluida a los clientes.
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/68cfc65f-f224-4761-beb0-68d84621d5ee) and start prompting.
+## 🚀 Características principales
 
-Changes made via Lovable will be committed automatically to this repo.
+### 🔑 Autenticación y Seguridad
+- Configuración de contraseña y datos personales al primer ingreso.
+- Edición de perfil, correo y credenciales de acceso.
+
+### 🏢 Gestión de Sucursales y Recursos
+- Creación y edición de **sucursales** con nombre, dirección, horarios y zona.
+- Registro de **categorías** de atención con nombre, código y color.
+- Alta de **kioskos** asociados a sucursales.
+- Registro de **pantallas** para mostrar turnos y anuncios.
+- Carga y administración de **contenido publicitario** (imágenes, videos).
+
+### 👥 Administración de Usuarios
+- Creación de cuentas para **usuarios administrativos** (técnicos, gerentes, etc.).
+- Asignación de usuarios a sucursales.
+- Configuración de **permisos específicos** por usuario.
+- Validación de correos, roles y duplicidad de registros.
+
+### 🔗 Asignación de Recursos
+- Asignar kioskos, pantallas y categorías a sucursales.
+- Reglas para evitar duplicidades y conflictos de asignación.
+
+### ⚙️ Configuración Avanzada
+- Definir **campos requeridos** en kioskos (cédula, teléfono, nombre).
+- Configurar **reglas de prioridad** entre categorías.
+- Definir **tiempos de recuperación** de turnos perdidos.
+
+### 📊 Reportes y Soporte
+- Generar y exportar **reportes** filtrados por fecha, categoría y sucursal.
+- Reporte de errores técnicos o funcionales al equipo de soporte.
+
+### 🧾 Funcionalidad para Clientes
+- Generación de turnos desde kioskos con impresión de ticket y código QR.
+- Consulta de estado de turno desde móvil o web.
+- Recepción de notificaciones web cuando se acerque el turno.
+- Visualización de tiempo estimado en pantallas.
+- Atención prioritaria para clientes vulnerables.
+
+---
 
 **Use your preferred IDE**
 
@@ -60,14 +98,3 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/68cfc65f-f224-4761-beb0-68d84621d5ee) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
