@@ -66,7 +66,8 @@ const Pantallas = () => {
 
   // Si venimos de "/pantallas/nueva" con una pantalla recién creada, agregarla
   useEffect(() => {
-    const nueva = (location.state as any)?.newPantalla as Pantalla | undefined;
+    const nueva = (location.state as { newPantalla?: Pantalla })?.newPantalla;
+
     if (nueva) {
       setPantallas((prev) => {
         if (prev.some((p) => p.id === nueva.id)) return prev;

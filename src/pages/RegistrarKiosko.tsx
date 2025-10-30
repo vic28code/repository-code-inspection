@@ -14,7 +14,7 @@ const RegistrarKiosko = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const initialSucursalNombre = (location.state as any)?.sucursalNombre || searchParams.get('sucursalNombre') || "";
+  const initialSucursalNombre = (location.state as { sucursalNombre?: string })?.sucursalNombre || searchParams.get('sucursalNombre') || "";
   const [sucursalAsignadaNombre] = useState(initialSucursalNombre || "Sin asignar");
 
   useEffect(() => {
